@@ -38,6 +38,12 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # 3rd-party
+    'bootstrapform',
+
+    # ours
+    'feedlyr',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -97,9 +103,13 @@ STATIC_URL = '/static/'
 #     'django.template.loaders.eggs.Loader',
 # )
 
-AUTHENTICATION_BACKENDS = (
-    # Needed to login by username in Django admin, regardless of `allauth`
-    "django.contrib.auth.backends.ModelBackend",
-    # `allauth` specific authentication methods, such as login by e-mail
-    "allauth.account.auth_backends.AuthenticationBackend",
-)
+
+# TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
+
+
+# AUTHENTICATION_BACKENDS = (
+#     # Needed to login by username in Django admin, regardless of `allauth`
+#     "django.contrib.auth.backends.ModelBackend",
+#     # `allauth` specific authentication methods, such as login by e-mail
+#     "allauth.account.auth_backends.AuthenticationBackend",
+# )
