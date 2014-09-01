@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 import requests
 import json
 
@@ -96,18 +96,23 @@ class FeedlyClient(object):
         res = requests.put(url=request_url, data=json.dumps(params), headers=headers)
         return res
 
-    def search(self, access_token, stream_id, entry_ids):
+    def search(self, access_token, query):
         """ Search the content of a Feedly stream (Pro only)
-        http://developer.feedly.com/v3/search/#search-the-content-of-a-stream-pro-only
-        """
-        headers = {'content-type': 'application/json',
-                   'Authorization': 'OAuth ' + access_token
-                   }
-        request_url = self._get_endpoint('v3/tags') + '/search%2F' + stream_id + '%2Ftag%2Fglobal.saved'
 
-        params = dict(entryIds=entryIds)
-        res = requests.put(url=request_url, data=json.dumps(params), headers=headers)
-        return res
+        http://developer.feedly.com/v3/search/#search-the-content-of-a-stream-pro-only
+
+        """
+        headers = {
+            'content-type': 'application/json',
+            'Authorization': 'OAuth ' + access_token
+        }
+        request_url = self._get_endpoint('v3/search/contents')
+        response = requests.get(
+            url=request_url,
+            params={'q': query},
+            headers=headers
+        )
+        return response.json()
 
     def _get_endpoint(self, path=None):
         url = "https://%s" % (self.service_host)

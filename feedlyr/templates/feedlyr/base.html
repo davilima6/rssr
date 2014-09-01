@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <title>{% block title %}Feedlyr &ndash; RSS Reader {% endblock %}</title>
+    <link rel="stylesheet" href="{{STATIC_URL}}css/base.css" />
+</head>
+
+<body>
+
+    <div id="container">
+        {% block container %}
+
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Feedlyr</a>
+            </div>
+            <form action="{% url 'search' %}" method="POST" enctype="multipart/data" class="navbar-form navbar-left" role="search">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input name="q" type="text" value="{{ results.query }}" placeholder="" class="form-control" />
+                </div>
+                <button type="submit" class="btn btn-default">Pesquisar</button>
+                {% if error %}
+                    <p class="error">{{error}}</p>
+                {% endif %}
+            </form>
+            <div>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if not code %}
+                        <li><a href="{% url 'feedly_new' %}">autenticar-se</a></li>
+                    {% else %}
+                        <li><a href="{% url 'opml' %}">importar opml</a></li>
+                        <li><a href="{% url 'feedly_logout' %}">sair</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+
+        {% comment "TODO: Filtros por fontes e expressões de busca" %}
+        <div id="search">
+            <div id="sources">
+                {% for source in source.objects.all %}
+                <div id="{{ source.id }}" class="field-wrapper">
+                    <input type="checkbox" name="source" id="source{{ forloop.counter }}" value="{{ source.id }}" checked />
+                    <label for="source{{ forloop.counter }}">{{ source.name }}</label>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="expr">
+                {% for expr in expr.objects.all %}
+                <div id="{{ expr.id }}" class="field-wrapper">
+                    <input type="checkbox" name="expr" id="expr{{ forloop.counter }}" value="{{ expr.id }}" checked />
+                    <label for="expr{{ forloop.counter }}">{{ expr.title }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endcomment %}
+
+        <div id="content">
+            {% block content %}
+                {% if results != None %}
+                    <h1>Pesquisa por '{{ results.query }}'</h1>
+                    {% for i in results.items %}
+                        <div class="result-item">
+                            <h3><span class="glyphicon glyphicon-chevron-right"/></span> {{ i.origin.title }}</h3>
+                            <h6>{{ i.origin.htmlUrl|urlize }}</h6>
+                            <div>{{ i.summary.content|safe }}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <h1>Sem resultados</h1>
+                    <em class="no-query">Nenhuma solicitação foi realizada à API do Feedly.</em>
+                {% endif %}
+            {% endblock %}
+        </div>
+
+        {% endblock container %}
+    </div>
+
+    <div id="footer">
+        <p>Este aplicativo realiza buscas em feeds RSS.</p>
+        <p>Possíveis fontes são a API do Feedly.com e feeds previamente cadastrados.</p>
+    </div>
+
+    <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+    <script src="{{STATIC_URL}}js/base.js"></script>
+
+</body>
+</html>
