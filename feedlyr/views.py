@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-from django.views.generic.base import TemplateView
+from django.views.generic import View, TemplateView
 
 from django import forms
-from django.forms.models import modelform_factory
+# from django.forms.models import modelform_factory
 
 from feedlyr.client import FeedlyClient
 from feedlyr.models import SearchExpr, Source
@@ -16,18 +16,35 @@ FEEDLY_CLIENT_SECRET = "YDRYI5E8OP2JKXYSDW79"
 
 
 class ImportOPMLForm(forms.Form):
-    opml_upload = forms.FileField('Importar OPML')
+    opml_upload = forms.FileField('Upload de OPML', help_text='max 42 megabit')
+
+
+class ImportOPMLView(View):
+    form_class = ImportOPMLForm
+    initial = {}
+    template_name = 'feedlyr/opml.html'
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class(initial=self.initial)
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, request.FILES)
+        if form.is_valid():
+            # Include message "Arquivo enviado com sucesso!"
+            return render(request, self.template_name, {'form': form})
 
 
 class SearchForm(forms.Form):
+    """ Composição de formulários """
 
-    def __init__(self, *args, **kwargs):
-        SourceForm = modelform_factory(Source,
-                                       fields=('name', 'url'),
-                                       exclude=('site',))
-        SearchExprForm = modelform_factory(SearchExpr)
-        self.source_form = SourceForm(prefix='source')
-        self.expr_form = SearchExprForm(prefix='expr')
+    # def __init__(self, *args, **kwargs):
+    #     SourceForm = modelform_factory(Source,
+    #                                    fields=('name', 'url'),
+    #                                    exclude=('site',))
+    #     SearchExprForm = modelform_factory(SearchExpr)
+    #     self.source_form = SourceForm(prefix='source')
+    #     self.expr_form = SearchExprForm(prefix='expr')
 
 
 def get_feedly_client(token=None):
@@ -101,6 +118,7 @@ class SearchView(TemplateView):
         """ Queries Feedly API for the search expression
         """
         feedly = get_feedly_client()
+        query = request.POST.get('query', None)
 
         # Caso seja o primeiro acesso, autentica e solicita token de acesso
         access_token = request.session.get('access_token', None)

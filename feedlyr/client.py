@@ -96,7 +96,7 @@ class FeedlyClient(object):
         res = requests.put(url=request_url, data=json.dumps(params), headers=headers)
         return res
 
-    def search(self, access_token, query):
+    def search(self, access_token, query, streamId=None):
         """ Search the content of a Feedly stream (Pro only)
 
         http://developer.feedly.com/v3/search/#search-the-content-of-a-stream-pro-only
@@ -113,6 +113,31 @@ class FeedlyClient(object):
             headers=headers
         )
         return response.json()
+
+    def upload_opml(self, access_token, file):
+        """ Upload initial data
+        """
+        headers = {'content-type': 'text/xml',
+                   'Authorization': 'OAuth ' + access_token
+                   }
+        request_url = self._get_endpoint('v3/opml')
+        files = dict(file=file)
+        res = requests.post(url=request_url, files=files, headers=headers)
+        return res
+
+    def feedly_logout(self, access_token, client_id, client_secret):
+        """ Upload initial data
+        """
+        headers = {'content-type': 'application/json',
+                   'Authorization': 'OAuth ' + access_token}
+        request_url = self._get_endpoint('v3/auth/token')
+        params = dict(
+            refresh_token=access_token,
+            client_id=client_id,
+            client_secret=client_secret,
+            grant_type='revoke_token')
+        res = requests.post(url=request_url, data=json.dumps(params), headers=headers)
+        return res
 
     def _get_endpoint(self, path=None):
         url = "https://%s" % (self.service_host)
