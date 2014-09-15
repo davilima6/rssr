@@ -10,9 +10,20 @@ from feedlyr.client import FeedlyClient
 from feedlyr.models import SearchExpr, Source
 
 
-FEEDLY_REDIRECT_URI = "http://localhost:8080"
-FEEDLY_CLIENT_ID = "sandbox"
-FEEDLY_CLIENT_SECRET = "YDRYI5E8OP2JKXYSDW79"
+# DEV SANDBOX
+FEEDLY_REDIRECT_URI = "http://104.131.52.43"
+FEEDLY_CLIENT_ID = "d72f5686-3e13-437c-98d2-60a6fa5df2c4"
+FEEDLY_CLIENT_SECRET = "AkrrWxp7ImEiOiJGZWVkbHkgRGV2ZWxvcGVyIiwiZSI6MTQxODU5NjE0NTI4NiwiaSI6ImQ3MmY1Njg2LTNlMTMtNDM3Yy05OGQyLTYwYTZmYTVkZjJjNCIsInAiOjYsInQiOjEsInYiOiJzYW5kYm94IiwidyI6IjIwMTQuMzYiLCJ4Ijoic3RhbmRhcmQifQ:feedlydev"
+
+# DEV CLOUD
+# FEEDLY_REDIRECT_URI = "http://104.131.52.43"
+# FEEDLY_CLIENT_ID = "c85cb160-45e0-4a80-aefd-03e7e3bf464f"
+# FEEDLY_CLIENT_SECRET = "AkrjI4B7ImEiOiJGZWVkbHkgRGV2ZWxvcGVyIiwiZSI6MTQxODU5NTYwNjc2NCwiaSI6ImM4NWNiMTYwLTQ1ZTAtNGE4MC1hZWZkLTAzZTdlM2JmNDY0ZiIsInAiOjYsInQiOjEsInYiOiJwcm9kdWN0aW9uIiwidyI6IjIwMTMuNDMiLCJ4Ijoic3RhbmRhcmQifQ:feedlydev"
+
+# LOCAL SANDBOX
+# FEEDLY_REDIRECT_URI = "http://localhost:8080"
+# FEEDLY_CLIENT_ID = "sandbox"
+# FEEDLY_CLIENT_SECRET = "YDRYI5E8OP2JKXYSDW79"
 
 
 class ImportOPMLForm(forms.Form):
@@ -49,11 +60,10 @@ class SearchForm(forms.Form):
 
 def get_feedly_client(token=None):
     if token:
-        return FeedlyClient(token=token, sandbox=True)
+        return FeedlyClient(token=token)
     else:
         return FeedlyClient(client_id=FEEDLY_CLIENT_ID,
-                            client_secret=FEEDLY_CLIENT_SECRET,
-                            sandbox=True)
+                            client_secret=FEEDLY_CLIENT_SECRET)
 
 
 def feedly_new(request):

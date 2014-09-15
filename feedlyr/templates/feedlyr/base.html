@@ -77,13 +77,16 @@
                             <div>{{ i.summary.content|safe }}</div>
                         </div>
                     {% endfor %}
+                    {% comment %}
+                    {% include "feedlyr/filtros.html" %}
+                    {% include "feedlyr/opendata.html" %}
+                    {% endcomment %}
                 {% else %}
                     <h1>Sem resultados</h1>
                     <em class="no-query">Nenhuma solicitação foi realizada à API do Feedly.</em>
                 {% endif %}
             {% endblock content %}
         </div>
-        {% include "feedlyr/filtros.html" %}
         {% endblock container %}
     </div>
 
