@@ -1,0 +1,18 @@
+{% if results %}
+  <div id="export" class="panel panel-default">
+    <div class="panel-heading"><h4 class="panel-title">Exportar</h4></div>
+    <div class="panel-body">
+      <label>Formatos destinados a consumo humano</label>
+      <div>
+        <span class="export-html"><a href="{% url 'export' %}.html">HTML</a></span>
+        <span class="export-csv"><a href="{% url 'export' %}.csv">CSV</a></span>
+        <span class="export-tsv"><a href="{% url 'export' %}.tsv">TSV</a></span>
+      </div><br>
+      <label>Formatos destinados a comunicação máquina a máquina</label>
+      <div>
+        <span class="export-json"><a href="{% url 'export' %}.json">JSON</a></span>
+        <span class="export-xml"><a href="{% url 'export' %}.xml">XML</a></span>
+      </div>
+    </div>
+</div>
+{% endif %}

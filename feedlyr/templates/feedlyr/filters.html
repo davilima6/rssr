@@ -1,0 +1,80 @@
+{% if sources or categories %}
+<div id="filters" class="panel panel-default">
+  <div class="panel-heading"><h4 class="panel-title">Filtros</h4></div>
+    <div class="panel-body">
+      <div class="panel-group" id="accordion">
+        {% if sources %}
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                  Fontes de notícias
+                </a>
+              </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+              <div class="panel-body">
+                {% for source in sources %}
+                  <div>
+                    <input type="checkbox" name="source" value="{{ source|slugify }}" checked="checked">
+                    <span>{{ source }}</span>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+        {% if categories %}
+        <div class="panel panel-default">
+          <div class="panel-heading">
+              <h4 class="panel-title">
+                  <a data-toggle="collapse" data-parent="#accordion" href="#filters-categories">
+                      Categorias do Feedly
+                  </a>
+              </h4>
+          </div>
+          <div id="filters-categories" class="panel-collapse collapse">
+            <div class="panel-body">
+              {% for category in categories %}
+                <div>
+                  <input name="category" type="checkbox" checked="checked">
+                  <span>{{ category }}</span>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        <div class="panel panel-default">
+          <div class="panel-heading">
+              <h4 class="panel-title">
+                  <a data-toggle="collapse" data-parent="#accordion" href="#filters-expressions">
+                      Expressões de busca salvas
+                  </a>
+              </h4>
+          </div>
+          <div id="filters-expressions" class="panel-collapse collapse">
+            <div class="panel-body">
+              <div>
+                <input name="expr" type="checkbox" checked="checked">
+                <span>Expressão de busca 01</span>
+              </div>
+              <div>
+                <input name="expr" type="checkbox" checked="checked">
+                <span>Expressão de busca 02</span>
+              </div>
+              <div>
+                <input name="expr" type="checkbox" checked="checked">
+                <span>Expressão de busca 03</span>
+              </div>
+              <div>
+                <input name="expr" type="checkbox" checked="checked">
+                <span>Expressão de busca 04</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+{% endif %}

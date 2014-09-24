@@ -9,41 +9,30 @@ from django import forms
 from feedlyr.client import FeedlyClient
 from feedlyr.models import SearchExpr, Source
 
+from rest_framework.renderers import JSONRenderer
+from rest_framework.renderers import XMLRenderer
+# from rest_framework.renderers import TemplateHTMLRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-# DEV SANDBOX
-FEEDLY_REDIRECT_URI = "http://104.131.52.43"
-FEEDLY_CLIENT_ID = "d72f5686-3e13-437c-98d2-60a6fa5df2c4"
-FEEDLY_CLIENT_SECRET = "AkrrWxp7ImEiOiJGZWVkbHkgRGV2ZWxvcGVyIiwiZSI6MTQxODU5NjE0NTI4NiwiaSI6ImQ3MmY1Njg2LTNlMTMtNDM3Yy05OGQyLTYwYTZmYTVkZjJjNCIsInAiOjYsInQiOjEsInYiOiJzYW5kYm94IiwidyI6IjIwMTQuMzYiLCJ4Ijoic3RhbmRhcmQifQ:feedlydev"
+from rest_framework_csv.renderers import CSVRenderer
+# from rest_pandas.renderers import PandasExcelRenderer
+# from rest_pandas.renderers import PandasCSVRenderer
 
 # DEV CLOUD
 # FEEDLY_REDIRECT_URI = "http://104.131.52.43"
 # FEEDLY_CLIENT_ID = "c85cb160-45e0-4a80-aefd-03e7e3bf464f"
 # FEEDLY_CLIENT_SECRET = "AkrjI4B7ImEiOiJGZWVkbHkgRGV2ZWxvcGVyIiwiZSI6MTQxODU5NTYwNjc2NCwiaSI6ImM4NWNiMTYwLTQ1ZTAtNGE4MC1hZWZkLTAzZTdlM2JmNDY0ZiIsInAiOjYsInQiOjEsInYiOiJwcm9kdWN0aW9uIiwidyI6IjIwMTMuNDMiLCJ4Ijoic3RhbmRhcmQifQ:feedlydev"
 
-# LOCAL SANDBOX
-# FEEDLY_REDIRECT_URI = "http://localhost:8080"
+# DEV SANDBOX
+# FEEDLY_REDIRECT_URI = "http://104.131.52.43"
 # FEEDLY_CLIENT_ID = "sandbox"
-# FEEDLY_CLIENT_SECRET = "YDRYI5E8OP2JKXYSDW79"
+# FEEDLY_CLIENT_SECRET = "A0SXFX54S3K0OC9GNCXG"
 
-
-class ImportOPMLForm(forms.Form):
-    opml_upload = forms.FileField('Upload de OPML', help_text='max 42 megabit')
-
-
-class ImportOPMLView(View):
-    form_class = ImportOPMLForm
-    initial = {}
-    template_name = 'feedlyr/opml.html'
-
-    def get(self, request, *args, **kwargs):
-        form = self.form_class(initial=self.initial)
-        return render(request, self.template_name, {'form': form})
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST, request.FILES)
-        if form.is_valid():
-            # Include message "Arquivo enviado com sucesso!"
-            return render(request, self.template_name, {'form': form})
+# LOCAL SANDBOX
+FEEDLY_REDIRECT_URI = "http://localhost:8080"
+FEEDLY_CLIENT_ID = "sandbox"
+FEEDLY_CLIENT_SECRET = "A0SXFX54S3K0OC9GNCXG"
 
 
 class SearchForm(forms.Form):
@@ -60,10 +49,11 @@ class SearchForm(forms.Form):
 
 def get_feedly_client(token=None):
     if token:
-        return FeedlyClient(token=token)
+        return FeedlyClient(token=token, sandbox=True)
     else:
         return FeedlyClient(client_id=FEEDLY_CLIENT_ID,
-                            client_secret=FEEDLY_CLIENT_SECRET)
+                            client_secret=FEEDLY_CLIENT_SECRET,
+                            sandbox=True)
 
 
 def feedly_new(request):
@@ -128,11 +118,9 @@ class SearchView(TemplateView):
         """ Queries Feedly API for the search expression
         """
         feedly = get_feedly_client()
-        query = request.POST.get('query', None)
 
         # Caso seja o primeiro acesso, autentica e solicita token de acesso
         access_token = request.session.get('access_token', None)
-        query = request.POST.get('q', None)
         if not access_token:
             code = request.session['code']
             if not code:
@@ -142,7 +130,57 @@ class SearchView(TemplateView):
                 return HttpResponse('The authentication is failed.')
             access_token = request.session['access_token'] = res_access_token['access_token']
 
+        query = request.POST.get('q', None)
         results = feedly.search(access_token, query)
-        results['query'] = query
+        if results.get('errorCode'):
+            return render(request, 'feedlyr/base.html',
+                          {'error': '{}'.format(results)})
+        request.session['results'] = results
+        sources = {item['origin']['title'] for item in results['items']}
+        categories = {category[0]['label'] for category in [item['categories'] for item in results['items']]}
         return render(request, 'feedlyr/base.html',
-                      {'results': results, 'code': access_token})
+                      {'code': access_token,
+                       'query': query,
+                       'results': results,
+                       'sources': sources,
+                       'categories': categories,
+                       })
+
+
+class ImportOPMLForm(forms.Form):
+    opml_upload = forms.FileField(label='Arquivo OPML')
+
+
+class ImportOPMLView(View):
+    form_class = ImportOPMLForm
+    initial = {}
+    template_name = 'feedlyr/opml.html'
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class(initial=self.initial)
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, request.FILES)
+        if form.is_valid():
+            # Include message "Arquivo enviado com sucesso!"
+            return render(request, self.template_name, {'form': form})
+
+
+class ExportView(APIView):
+    """ TODO: TemplateHTMLRenderer, PandasExcelRenderer, PandasCSVRenderer
+    """
+    renderer_classes = (JSONRenderer, XMLRenderer, CSVRenderer, )
+
+    def get(self, request, format=None):
+        """
+        Serializa resultados persistidos na sessão para formato solicitado:
+        JSON, CSV, XML, HTML etc.
+        """
+
+        data = request.session['results']['items']
+
+        if request.accepted_renderer.format == 'html':
+            return Response(data, template_name='feedlyr/results.html')
+
+        return Response(data)

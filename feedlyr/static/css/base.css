@@ -1,8 +1,17 @@
-#content {
-    padding: 4em 1em 0.5em;
+/* GENERAL */
+
+#container {
+    padding-top: 5em;
 }
 
-#content h1,
+#content {
+    padding: 0 1em 0.5em;
+}
+
+#content h1 {
+    margin-top: 0;
+}
+
 #content h6 {
     font-style: italic;
 }
@@ -11,34 +20,60 @@
     text-align: center;
 }
 
-#content .result-item div {
+#content .result-item {
+    margin-bottom: 2em;
+}
+
+#content .result-item blockquote,
+#content .result-item blockquote p {
     font-size: 0.9em;
 }
 
-.opendata div span {
+#content .result-item div h1,
+#content .result-item div h2,
+#content .result-item div h3,
+#content .result-item div h4,
+#content .result-item div h5,
+#content .result-item div h6 {
+    font-size: 1.5em;
+    margin-top: 0;
+}
+
+#content .result-item div img {
+    float: left;
+    margin-right: 0.5em;
+}
+
+/* SIDEBAR */
+
+#export div span {
     padding: 2px 0 2px 20px;
 }
 
-.opendata .link-json {
+#export .export-json {
     background: url(/static/img/ico-json.png) 0 50% no-repeat;
 }
 
-.opendata .link-table {
+#export .export-html {
     background: url(/static/img/ico-html.png) 0 50% no-repeat;
 }
 
-.opendata .link-csv, .link-tsv {
+#export .export-csv,
+#export .export-tsv {
     background: url(/static/img/ico-csv.png) 0 50% no-repeat;
 }
 
-.opendata .link-xml {
+#export .export-xml {
     background: url(/static/img/ico-xml.gif) 0 1px no-repeat;
     padding: 1px 0 1px 18px;
 }
 
+/* FOOTER */
+
 #footer {
     border-top: 1px solid #ccc;
-    margin: 2em 12em 1em;
+    clear: both;
+    margin: 7em 12em 1em;
     padding-top: 1em;
     text-align: center;
 }
